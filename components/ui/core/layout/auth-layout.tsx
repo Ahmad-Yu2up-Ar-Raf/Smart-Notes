@@ -20,12 +20,14 @@ import Animated, {
   useAnimatedStyle,
   KeyboardState,
 } from 'react-native-reanimated';
+import { Spinner } from '../../fragments/shadcn-ui/spinner';
 
 type AuthLayoutProps = {
   children?: React.ReactNode;
   title?: string;
   description?: string;
   quote?: string;
+
   loading?: boolean;
   className?: string;
   numberOfIterations?: number;
@@ -37,6 +39,7 @@ type AuthLayoutProps = {
 
 const AuthLayout = ({
   formType,
+
   numberOfIterations,
   className,
   loading = false,
@@ -88,7 +91,7 @@ const AuthLayout = ({
             </CardDescription>
           </View>
         </CardHeader>
-        598682
+
         <CardContent className="mb-0 gap-6 p-0">
           <View className="gap-2.5">{props.children}</View>
         </CardContent>
@@ -102,7 +105,7 @@ const AuthLayout = ({
             <SocialConnections />
             {formType && (
               <Text className="mt-2 text-start text-sm text-muted-foreground">
-                {formType == 'register' ? ` alredy have an account? ` : 'don`t have an account? '}
+                {formType == 'register' ? `Sudah punya akun? ` : ' Belum punya akun? '}
                 <Link href={formTypeLink} className="text-primary underline underline-offset-4">
                   {formTypeLabel}
                 </Link>
@@ -114,8 +117,9 @@ const AuthLayout = ({
 
       {/* ✅ Animated.View menggantikan View biasa agar bisa menerima animatedButtonStyle */}
       <Animated.View className="absolute left-0 right-0 px-5" style={animatedButtonStyle}>
-        <Button variant="default" size={'lg'} onPress={onPress}>
+        <Button variant="default" size={'lg'} onPress={onPress} disabled={loading}>
           <Text className="font-cinzel_black text-lg text-primary-foreground">{textButton}</Text>
+          {loading && <Spinner className="text-primary-foreground" />}
         </Button>
       </Animated.View>
     </SafeAreaView>

@@ -42,6 +42,7 @@ export default function OnboardingBlock() {
   return (
     <>
       <Onboarding
+        variant="background"
         steps={OnboardingPresets.welcome}
         onComplete={completeOnboarding}
         onSkip={skipOnboarding}

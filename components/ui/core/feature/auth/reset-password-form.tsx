@@ -1,106 +1,64 @@
-import { Button } from '@/components/ui/fragments/shadcn-ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/fragments/shadcn-ui/card';
-import { Input } from '@/components/ui/fragments/shadcn-ui/input';
-import { Label } from '@/components/ui/fragments/shadcn-ui/label';
-import { Text } from '@/components/ui/fragments/shadcn-ui/text';
-import { useSignIn } from '@clerk/clerk-expo';
-import { router } from 'expo-router';
 import * as React from 'react';
-import { TextInput, View } from 'react-native';
+
 import AuthLayout from '../../layout/auth-layout';
+import { useResetPassword } from '@/hooks/form/auth/Useresetpassword';
+import {
+  GroupedInput,
+  GroupedInputItem,
+} from '@/components/ui/fragments/custom-ui/form/input-form';
 
 export function ResetPasswordForm() {
-  const { signIn, setActive, isLoaded } = useSignIn();
-  const [password, setPassword] = React.useState('');
-  const [code, setCode] = React.useState('');
-  const codeInputRef = React.useRef<TextInput>(null);
-  const [error, setError] = React.useState({ code: '', password: '' });
-
-  async function onSubmit() {
-    if (!isLoaded) {
-      return;
-    }
-    try {
-      const result = await signIn?.attemptFirstFactor({
-        strategy: 'reset_password_email_code',
-        code,
-        password,
-      });
-
-      if (result.status === 'complete') {
-        // Set the active session to
-        // the newly created session (user is now signed in)
-        setActive({ session: result.createdSessionId });
-        return;
-      }
-      // TODO: Handle other statuses
-    } catch (err) {
-      // See https://go.clerk.com/mRUDrIe for more info on error handling
-      if (err instanceof Error) {
-        const isPasswordMessage = err.message.toLowerCase().includes('password');
-        setError({ code: '', password: isPasswordMessage ? err.message : '' });
-        return;
-      }
-      console.error(JSON.stringify(err, null, 2));
-    }
-  }
-
-  function onPasswordSubmitEditing() {
-    codeInputRef.current?.focus();
-  }
-
+  const {
+    formData,
+    errors,
+    touched,
+    isSubmitting,
+    passwordRef,
+    codeRef,
+    handleChange,
+    handleBlur,
+    handleSubmit,
+  } = useResetPassword();
   return (
     <AuthLayout
-      onPress={onSubmit}
+      onPress={handleSubmit}
       textButton="Reset"
       signInGoogleButton={false}
-      title="Reset your password"
+      title="Reset Password Anda"
+      loading={isSubmitting}
       className="mb-4"
-      description="Enter your new password to reset it">
-      <View className="gap-1.5">
-        <View className="flex-row items-center">
-          <Label htmlFor="password" className="sr-only">
-            New password
-          </Label>
-        </View>
-        <Input
-          id="password"
+      description=" Masukkan password baru Anda dan kode verifikasi yang telah kami kirim ke email Anda">
+      <GroupedInput>
+        <GroupedInputItem
+          disabled={isSubmitting}
+          ref={passwordRef}
+          label="New Password"
+          placeholder="••••••••"
+          value={formData.password}
+          onChangeText={handleChange('password')}
+          onBlur={handleBlur('password')}
+          error={touched.password ? errors.password : undefined}
           secureTextEntry
-          placeholder="New password"
-          onChangeText={setPassword}
           returnKeyType="next"
-          submitBehavior="submit"
-          onSubmitEditing={onPasswordSubmitEditing}
+          onSubmitEditing={() => codeRef.current?.focus()}
         />
-        {error.password ? (
-          <Text className="text-sm font-medium text-destructive">{error.password}</Text>
-        ) : null}
-      </View>
-      <View className="gap-1.5">
-        <Label htmlFor="code" className="sr-only">
-          Verification code
-        </Label>
-        <Input
-          placeholder="Verify Code"
-          id="code"
-          autoCapitalize="none"
-          onChangeText={setCode}
-          returnKeyType="send"
+        <GroupedInputItem
+          disabled={isSubmitting}
+          ref={codeRef}
+          label="Verification Code"
+          placeholder="123456"
+          value={formData.code}
+          onChangeText={handleChange('code')}
+          onBlur={handleBlur('code')}
+          error={touched.code ? errors.code : undefined}
           keyboardType="numeric"
           autoComplete="sms-otp"
           textContentType="oneTimeCode"
-          onSubmitEditing={onSubmit}
+          returnKeyType="send"
+          maxLength={6}
+          onSubmitEditing={handleSubmit}
         />
-        {error.code ? (
-          <Text className="text-sm font-medium text-destructive">{error.code}</Text>
-        ) : null}
-      </View>
+      </GroupedInput>
     </AuthLayout>
   );
 }

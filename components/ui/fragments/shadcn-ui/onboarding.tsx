@@ -7,6 +7,7 @@ import { Dimensions, ImageBackground, ScrollView, StyleSheet, View, ViewStyle } 
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   runOnJS,
+  useAnimatedKeyboard,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
@@ -15,14 +16,15 @@ import { THEME } from '@/lib/theme';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import LogoApp from '../svg/logo-app';
+
 const { width: screenWidth } = Dimensions.get('window');
 
 export interface OnboardingStep {
   id: string;
   title: string;
-  description: string;
+  description?: string;
   image?: string;
-  icon?: React.ReactNode;
+  content?: React.ReactNode;
   backgroundColor?: string;
 }
 
@@ -37,28 +39,29 @@ export interface OnboardingProps {
   skipButtonText?: string;
   nextButtonText?: string;
   backButtonText?: string;
+  withBackButton?: boolean;
+  variant?: 'background' | 'default';
   style?: ViewStyle;
+  edges?: ('top' | 'bottom' | 'left' | 'right')[];
   children?: React.ReactNode;
 }
 
 // Enhanced Onboarding Step Component for complex layouts
-interface OnboardingStepContentProps {
-  step: OnboardingStep;
-  isActive: boolean;
-  children?: React.ReactNode;
-}
 
 export function Onboarding({
   steps,
   onComplete,
+  variant = 'default',
   onSkip,
   showSkip = true,
   showProgress = true,
   swipeEnabled = true,
   primaryButtonText = 'Get Started',
   skipButtonText = 'Skip',
+  withBackButton = false,
   nextButtonText = 'Next',
   backButtonText = 'Back',
+  edges = ['left', 'right'],
   style,
   children,
 }: OnboardingProps) {
@@ -162,52 +165,103 @@ export function Onboarding({
       <Animated.View
         key={step.id}
         style={[styles.stepContainer, { opacity: isActive ? 1 : 0.8 }]}
-        className={'flex h-full flex-col'}>
-        <ImageBackground
-          source={{
-            uri: step.image || 'https://images.pexels.com/photos/3205568/pexels-photo-3205568.jpeg',
-          }}
-          resizeMode="cover"
-          className="flex-1 items-center justify-center px-5"
-          style={{
-            paddingBottom: insets.bottom > 0 ? insets.bottom + 80 : 12,
-          }}>
-          <LinearGradient
-            colors={[
-              'rgba(0,0,0,0.0)', // top fully transparent
-              'rgba(0,0,0,0.4)', // middle slightly dark
-              'rgba(0,0,0,0.9)', // bottom darker
-            ]}
-            locations={[0, 0.5, 1]}
-            style={{
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              top: 0,
-              bottom: 0,
+        className={'flex h-full flex-col content-center items-center justify-center'}>
+        {variant === 'background' ? (
+          <ImageBackground
+            source={{
+              uri:
+                step.image || 'https://images.pexels.com/photos/3205568/pexels-photo-3205568.jpeg',
             }}
-          />
+            resizeMode="cover"
+            className="flex-1 items-center justify-center px-5"
+            style={{
+              paddingBottom: insets.bottom > 0 ? insets.bottom + 140 : 12,
+            }}>
+            <LinearGradient
+              colors={[
+                'rgba(0,0,0,0.0)', // top fully transparent
+                'rgba(0,0,0,0.7)', // middle slightly dark
+                'rgba(0,0,0,2)', // bottom darker
+              ]}
+              locations={[0, 0.5, 1]}
+              style={{
+                position: 'absolute',
+                left: 0,
+                right: 0,
+                top: 0,
+                bottom: 0,
+              }}
+            />
 
-          <View className="mb-0 h-full w-full justify-end gap-2 text-left">
-            <Text variant="h1" className="m-0 border-0 pb-2 text-left tracking-tighter text-white">
-              {step.title}
-            </Text>
-            <Text
-              variant="p"
-              className="m-0 line-clamp-2 text-base leading-6 text-muted-foreground">
-              {step.description}
-            </Text>
+            <View className="mb-0 h-full w-full justify-end gap-2 pr-12 text-left">
+              <Text
+                variant="h1"
+                className="m-0 border-0 pb-2 text-left tracking-tighter text-white">
+                {step.title}
+              </Text>
+              <Text
+                variant="p"
+                className="m-0 line-clamp-2 text-lg leading-6 text-muted-foreground">
+                {step.description}
+              </Text>
+            </View>
+          </ImageBackground>
+        ) : (
+          <View className="h-full w-full content-start items-start justify-start gap-5 px-5 pt-28">
+            <View className="mb-0 h-fit w-full gap-2 pr-16 text-left">
+              {/* <View
+                className="size-fit"
+                style={{
+                  elevation: 100, // For Android shadow
+                }}>
+                <LogoApp
+                  className="relative m-auto size-full overflow-visible shadow-lg shadow-black drop-shadow-sm"
+                  style={{
+                    elevation: 100, // For Android shadow
+                  }}
+                />
+              </View> */}
+              <Text variant="h1" className="m-0 border-0 pb-2 text-left text-3xl tracking-tighter">
+                {step.title}
+              </Text>
+              {step.description && (
+                <Text
+                  variant="p"
+                  className="m-0 line-clamp-2 text-lg leading-6 text-muted-foreground">
+                  {step.description}
+                </Text>
+              )}
+            </View>
+            <View className="flex h-fit w-full content-center items-center justify-center overflow-hidden">
+              {step.content}
+            </View>
           </View>
-        </ImageBackground>
+        )}
       </Animated.View>
     );
   };
   const insets = useSafeAreaInsets();
+
+  // ✅ useAnimatedKeyboard: hook reanimated yang track tinggi keyboard secara real-time
+  // Jauh lebih smooth dibanding Keyboard.addListener karena berjalan di UI thread langsung
+  const keyboard = useAnimatedKeyboard();
+
+  // Offset saat keyboard TIDAK aktif → pakai safe area inset agar tidak mepet bawah
+  const bottomWhenClosed = insets.bottom > 0 ? insets.bottom : 12;
+  // Offset saat keyboard AKTIF → cukup padding kecil (8px) karena safe area
+  // sudah "tertelan" oleh keyboard — tanpa ini terjadi double-spacing yang terlalu lebar
+  const bottomWhenOpen = 8;
+
+  const animatedButtonStyle = useAnimatedStyle(() => {
+    const isKeyboardOpen = keyboard.height.value > 0;
+    return {
+      bottom: isKeyboardOpen
+        ? keyboard.height.value + bottomWhenOpen // keyboard aktif: tipis saja
+        : bottomWhenClosed, // keyboard tutup: pakai safe area
+    };
+  });
   return (
-    <SafeAreaView
-      edges={['bottom', 'left', 'right']}
-      className="relative"
-      style={[styles.container, style]}>
+    <SafeAreaView edges={edges} className="relative" style={[styles.container, style]}>
       <GestureDetector gesture={panGesture}>
         <Animated.View style={[styles.container, animatedStyle]}>
           <ScrollView
@@ -233,31 +287,57 @@ export function Onboarding({
           <Button
             variant="ghost"
             size={'sm'}
-            className="rounded-full px-4 bg-black/50 dark:bg-accent/50 dark:text-white"
+            className="rounded-full bg-black/50 px-4 dark:bg-accent/50 dark:text-white"
             onPress={handleSkip}>
             <Text className="text-sm text-white">{skipButtonText}</Text>
           </Button>
         </View>
       )}
       <View className="absolute left-4 top-[60px] flex-row items-center gap-7">
-       
         <Text className="text-center font-cinzel_semibold text-2xl tracking-tighter text-white">
           Saraya
         </Text>
       </View>
       {/* Navigation Buttons */}
-      <View
-        className="absolute left-0 right-0 px-5 pb-4"
-        style={{
-          bottom: insets.bottom > 0 ? insets.bottom : 12,
-        }}>
+      <Animated.View
+        className={cn('absolute left-0 right-0 px-5 pb-4')}
+        style={[
+          {
+            bottom: insets.bottom > 0 ? insets.bottom : 12,
+          },
+          animatedButtonStyle,
+        ]}>
         {renderProgressDots()}
-        <Button variant="default" size={'lg'} className="w-full" onPress={handleNext}>
-          <Text className="text-lg font-bold">
-            {isLastStep ? primaryButtonText : nextButtonText}
-          </Text>
-        </Button>
-      </View>
+        {withBackButton ? (
+          <View className="w-full flex-row gap-3">
+            {!isFirstStep && (
+              <Button
+                variant="outline"
+                size={'lg'}
+                onPress={handleBack}
+                className={cn('h-fit w-full py-3', 'flex-1')}>
+                <Text>{backButtonText}</Text>
+              </Button>
+            )}
+
+            <Button
+              variant="default"
+              size={'lg'}
+              onPress={handleNext}
+              className={cn('h-fit w-full py-3', isFirstStep ? 'flex-1' : 'flex-[2]')}>
+              <Text className="text-lg font-bold">
+                {isLastStep ? primaryButtonText : nextButtonText}
+              </Text>
+            </Button>
+          </View>
+        ) : (
+          <Button variant="default" size={'lg'} className="h-fit w-full py-3" onPress={handleNext}>
+            <Text className="text-lg font-bold">
+              {isLastStep ? primaryButtonText : nextButtonText}
+            </Text>
+          </Button>
+        )}
+      </Animated.View>
     </SafeAreaView>
   );
 }

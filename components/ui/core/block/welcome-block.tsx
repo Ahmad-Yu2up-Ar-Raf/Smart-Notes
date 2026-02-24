@@ -3,7 +3,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/fragments/shadcn-ui/card';
@@ -38,7 +37,7 @@ const WelcomeBlock = ({
   return (
     <>
       <SafeAreaView
-        edges={['bottom', 'left', 'right']} 
+        edges={['bottom', 'left', 'right']}
         className="relative h-full items-center justify-center">
         <View
           className={cn('absolute -right-4 h-fit w-full scale-[1.12]')}
@@ -55,7 +54,7 @@ const WelcomeBlock = ({
                 elevation: 100, // For Android shadow
               }}>
               <LogoApp
-                className="relative m-auto size-full overflow-visible shadow-lg shadow-black drop-shadow-sm"
+                className="relative  m-auto size-full overflow-visible shadow-lg shadow-black drop-shadow-sm"
                 style={{
                   elevation: 100, // For Android shadow
                 }}

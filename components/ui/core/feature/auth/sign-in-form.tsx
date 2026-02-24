@@ -1,60 +1,38 @@
 import { Button } from '@/components/ui/fragments/shadcn-ui/button';
-import * as Haptics from 'expo-haptics';
-import { Input } from '@/components/ui/fragments/shadcn-ui/input';
+
 import { Label } from '@/components/ui/fragments/shadcn-ui/label';
 import { Text } from '@/components/ui/fragments/shadcn-ui/text';
 import { Checkbox } from '@/components/ui/fragments/shadcn-ui/checkbox';
-import { useSignIn } from '@clerk/clerk-expo';
+import * as Haptics from 'expo-haptics';
 import { Link } from 'expo-router';
 import * as React from 'react';
 import { Platform, type TextInput, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import AuthLayout from '../../layout/auth-layout';
+import {
+  GroupedInput,
+  GroupedInputItem,
+} from '@/components/ui/fragments/custom-ui/form/input-form';
+import { useSignIn } from '@/hooks/form/auth/UseSignin';
+import { Icon } from '@/components/ui/fragments/shadcn-ui/icon';
+import { cn } from '@/lib/utils';
+import { Eye, EyeOffIcon } from 'lucide-react-native';
 
 export function SignInForm() {
-  const { signIn, setActive, isLoaded } = useSignIn();
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
-  const passwordInputRef = React.useRef<TextInput>(null);
-  const [error, setError] = React.useState<{ email?: string; password?: string }>({});
+  const [showPassword, setShowPassword] = React.useState(false);
 
-  async function onSubmit() {
-    if (!isLoaded) {
-      return;
-    }
+  const {
+    formData,
+    errors,
+    touched,
+    isSubmitting,
+    emailRef,
+    passwordRef,
+    handleChange,
+    handleBlur,
+    handleSubmit,
+  } = useSignIn();
 
-    // Start the sign-in process using the email and password provided
-    try {
-      const signInAttempt = await signIn.create({
-        identifier: email,
-        password,
-      });
-
-      // If sign-in process is complete, set the created session as active
-      // and redirect the user
-      if (signInAttempt.status === 'complete') {
-        setError({ email: '', password: '' });
-        await setActive({ session: signInAttempt.createdSessionId });
-        return;
-      }
-      // TODO: Handle other statuses
-      console.error(JSON.stringify(signInAttempt, null, 2));
-    } catch (err) {
-      // See https://go.clerk.com/mRUDrIe for more info on error handling
-      if (err instanceof Error) {
-        const isEmailMessage =
-          err.message.toLowerCase().includes('identifier') ||
-          err.message.toLowerCase().includes('email');
-        setError(isEmailMessage ? { email: err.message } : { password: err.message });
-        return;
-      }
-      console.error(JSON.stringify(err, null, 2));
-    }
-  }
-
-  function onEmailSubmitEditing() {
-    passwordInputRef.current?.focus();
-  }
   const [state, setState] = React.useState({
     termsChecked: true,
     terms2Checked: true,
@@ -71,50 +49,72 @@ export function SignInForm() {
       }));
     };
   }
-  const insets = useSafeAreaInsets();
   return (
     <AuthLayout
-      onPress={onSubmit}
+      onPress={handleSubmit}
+      loading={isSubmitting}
       title="Selamat Datang!"
       description="Masuk untuk melanjutkan"
       formType="login">
-      <View className="gap-1.5">
-        <Label htmlFor="email" className="sr-only">
-          Email
-        </Label>
-        <Input
-          id="email"
-          placeholder="email"
+      <GroupedInput>
+        <GroupedInputItem
+          disabled={isSubmitting}
+          ref={emailRef}
+          label="Email"
+          placeholder="m@example.com"
+          value={formData.email}
+          onChangeText={handleChange('email')}
+          onBlur={handleBlur('email')}
+          error={touched.email ? errors.email : undefined}
           keyboardType="email-address"
           autoComplete="email"
           autoCapitalize="none"
-          onChangeText={setEmail}
-          onSubmitEditing={onEmailSubmitEditing}
           returnKeyType="next"
-          submitBehavior="submit"
+          onSubmitEditing={() => passwordRef.current?.focus()}
         />
-        {error.email ? (
-          <Text className="text-sm font-medium text-destructive">{error.email}</Text>
-        ) : null}
-      </View>
-      <View className="gap-1.5">
-        <Label htmlFor="password" className="sr-only">
-          Password
-        </Label>
-        <Input
-          placeholder="password"
-          ref={passwordInputRef}
-          id="password"
-          secureTextEntry
-          onChangeText={setPassword}
+        <GroupedInputItem
+          disabled={isSubmitting}
+          ref={passwordRef}
+          label="Password"
+          placeholder="••••••"
+          value={formData.password}
+          onChangeText={handleChange('password')}
+          onBlur={handleBlur('password')}
+          error={touched.password ? errors.password : undefined}
+          secureTextEntry={!showPassword}
           returnKeyType="send"
-          onSubmitEditing={onSubmit}
+          onSubmitEditing={handleSubmit}
+          rightComponent={
+            <Button
+              disabled={isSubmitting}
+              variant="ghost"
+              className="absolute right-0 bg-none"
+              onPress={() => setShowPassword(!showPassword)}>
+              {showPassword ? (
+                <Icon
+                  className={cn(
+                    errors.password && touched.password
+                      ? 'text-destructive'
+                      : 'text-muted-foreground'
+                  )}
+                  as={Eye}
+                  size={22}
+                />
+              ) : (
+                <Icon
+                  className={cn(
+                    errors.password && touched.password
+                      ? 'text-destructive'
+                      : 'text-muted-foreground'
+                  )}
+                  as={EyeOffIcon}
+                  size={22}
+                />
+              )}
+            </Button>
+          }
         />
-
-        {error.password ? (
-          <Text className="text-sm font-medium text-destructive">{error.password}</Text>
-        ) : null}
-      </View>
+      </GroupedInput>
       <View className="m-0 mt-2 h-fit w-full flex-row items-center justify-between px-1">
         <View className="flex flex-row items-center gap-3">
           <Checkbox
@@ -129,7 +129,7 @@ export function SignInForm() {
             Ingat Saya
           </Label>
         </View>
-        <Link asChild href={`/(auth)/forgot-password?email=${email}`}>
+        <Link asChild href={`/(auth)/forgot-password?email=${formData.email}`}>
           <Button variant="link" size="sm" className="ml-auto h-fit px-1 py-0 web:h-fit sm:h-4">
             <Text className="text-sm font-normal leading-4">Lupa password?</Text>
           </Button>
