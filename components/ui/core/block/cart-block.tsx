@@ -5,7 +5,7 @@ import { Button } from '../../fragments/shadcn-ui/button';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColorScheme } from 'nativewind';
 import { THEME } from '@/lib/theme';
-import { useCart } from '@/components/provider/CartProvider';
+import { useCart } from '@/components/provider/LikedProvider';
 import LoadingIndicator from '../loading-indicator';
 
 import { CartProductCard } from '../../fragments/custom-ui/card/cart-product-card';

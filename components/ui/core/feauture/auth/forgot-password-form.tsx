@@ -25,8 +25,8 @@ export function ForgotPasswordForm() {
       textButton="Submit"
       signInGoogleButton={false}
       loading={isSubmitting}
-      title=" lupa password Anda?"
-      description=" Masukkan email Anda untuk menerima instruksi reset password">
+      title="Forgot Password?"
+      description=" Enter your email  ">
       <GroupedInput>
         <GroupedInputItem
           disabled={isSubmitting}

@@ -1,33 +1,48 @@
-// app/(drawer)/_layout.tsx
-//
-// ✅ Drawer adalah navigator utama.
-// Semua top-level route (tabs, doa, article) terdaftar di sini.
-// headerShown: false di semua screen → custom header via SCREEN_OPTIONS yang handle.
-//
-// ⚠️ initialRouteName="(tabs)" memastikan Home (tabs/index)
-// yang pertama muncul saat app dibuka.
-
+import React from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Drawer } from 'expo-router/drawer';
 import { useColorScheme } from 'nativewind';
 import { THEME } from '@/lib/theme';
-import { View, Pressable } from 'react-native';
+import { View } from 'react-native';
 import { Text } from '@/components/ui/fragments/shadcn-ui/text';
 import {
   DrawerContentScrollView,
   type DrawerContentComponentProps,
 } from '@react-navigation/drawer';
-import { router, usePathname } from 'expo-router';
+import { Href, router, usePathname } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Button } from '@/components/ui/fragments/shadcn-ui/button';
+import {
+  Archive,
+  LogOutIcon,
+  LucideIcon,
+  NotepadText,
+  Settings,
+  Star,
+  Trash2Icon,
+} from 'lucide-react-native';
+import { Icon } from '@/components/ui/fragments/shadcn-ui/icon';
+import { cn } from '@/lib/utils';
+import { useAuth } from '@clerk/clerk-expo';
+import { Separator } from '@/components/ui/fragments/shadcn-ui/separator';
+import { LogoAdaptive } from '@/components/ui/fragments/svg/logo-app';
+import { GlobalQuoteActionsSheet } from '@/components/ui/core/sheet/GlobalQuoteActionsSheet';
 
 // ─── Menu Config ──────────────────────────────────────────────────────────────
 
-const DRAWER_MENU = [
-  { label: '🏠  Home', route: '/(drawer)/(tabs)/', match: '/(tabs)' },
-  { label: '📖  Inbox', route: '/(drawer)/(tabs)/inbox', match: '/inbox' },
-  { label: '🕌  Liked', route: '/(drawer)/(tabs)/liked', match: '/liked' },
+interface DrawerMenuItem {
+  Icon: LucideIcon;
+  label: string;
+  route: Href;
+  match: string;
+}
 
-  { label: '⚙️  Profile', route: '/(drawer)/(tabs)/profile', match: '/profile' },
+const DRAWER_MENU: DrawerMenuItem[] = [
+  { Icon: NotepadText, label: 'All Notes', route: '/(drawer)/(tabs)', match: '/' },
+  { Icon: Star, label: 'Favorites', route: '/(drawer)/(tabs)/liked', match: '/liked' },
+  { Icon: Archive, label: 'Archive', route: '/(drawer)/(tabs)/archive', match: '/archive' },
+  { Icon: Trash2Icon, label: 'Trash', route: '/(drawer)/trash', match: '/trash' },
+  { Icon: Settings, label: 'Settings', route: '/(drawer)/settings', match: '/settings' },
 ] as const;
 
 // ─── Custom Drawer Content ────────────────────────────────────────────────────
@@ -37,60 +52,84 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
   const currentTheme = colorScheme ?? 'light';
   const insets = useSafeAreaInsets();
   const pathname = usePathname();
+  const { signOut } = useAuth();
 
+  async function onSignOut() {
+    props.navigation.closeDrawer();
+    await signOut();
+  }
   return (
     <DrawerContentScrollView
       {...props}
       contentContainerStyle={{
         flex: 1,
-        paddingTop: insets.top + 8,
+        position: 'relative',
+        paddingTop: insets.top + 12,
+
         backgroundColor: THEME[currentTheme].background,
-      }}>
+      }}
+      className="relative">
       {/* Branding */}
-      <View className="px-5 pb-5">
-        <Text className="font-poppins_semiboldtext-2xl tracking-tight">Gurun</Text>
-        <Text className="mt-0.5 font-poppins_regular text-xs text-muted-foreground">
-          Islamic Companion App
-        </Text>
+      <View className="h-fit w-full items-start justify-start gap-8 px-5">
+        <View className="items-start justify-start gap-7 text-start">
+          <View className="w-fit flex-row items-center gap-6">
+            <View className="size-12">
+              <LogoAdaptive />
+            </View>
+
+            <Text variant="h4" className="text-center font-poppins_bold text-2xl tracking-tighter">
+              FogyNotion
+            </Text>
+          </View>
+        </View>
+
+        {/* Divider */}
+        <Separator className="m-auto mb-1 mt-0 w-full" />
+        <View className="gap-1 px-2">
+          {DRAWER_MENU.map((item) => {
+            const isActive = pathname === item.match;
+            return (
+              <Button
+                size={'lg'}
+                variant={'ghost'}
+                key={item.label}
+                onPress={() => {
+                  router.push(item.route as Href);
+                  props.navigation.closeDrawer();
+                }}
+                className={cn(
+                  'w-full flex-row items-center justify-start gap-5 p-0 active:opacity-60',
+                  item.label == 'Settings' && 'mt-14'
+                )}>
+                <Icon
+                  as={item.Icon}
+                  className={cn(isActive ? 'text-primary' : 'text-muted-foreground', 'size-5')}
+                />
+                <Text
+                  className={cn(
+                    isActive ? 'text-primary' : 'text-muted-foreground',
+                    'font-poppins_medium'
+                  )}>
+                  {item.label}
+                </Text>
+              </Button>
+            );
+          })}
+        </View>
       </View>
-
-      {/* Divider */}
-      <View
-        className="mx-4 mb-3"
-        style={{
-          height: 0.5,
-          backgroundColor: THEME[currentTheme].mutedForeground,
-          opacity: 0.2,
-        }}
-      />
-
       {/* Menu Items */}
-      <View className="gap-0.5 px-3">
-        {DRAWER_MENU.map((item) => {
-          const isActive = pathname.includes(item.match);
-          return (
-            <Pressable
-              key={item.route}
-              onPress={() => {
-                router.push(item.route as any);
-                props.navigation.closeDrawer();
-              }}
-              className="flex-row items-center rounded-xl px-4 py-3 active:opacity-60"
-              style={{
-                backgroundColor: isActive ? THEME[currentTheme].muted : 'transparent',
-              }}>
-              <Text
-                className={
-                  isActive
-                    ? 'font-poppins_semibold text-sm text-secondary'
-                    : 'font-poppins_medium text-sm'
-                }>
-                {item.label}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
+      <Button
+        onPress={onSignOut}
+        size={'lg'}
+        variant={'ghost'}
+        key={'logout'}
+        style={{
+          marginBottom: insets.bottom > 0 ? insets.bottom + 1 : 12,
+        }}
+        className="absolute bottom-0 mb-0 h-fit w-full flex-1 flex-row items-center justify-start gap-5 p-10 active:opacity-60">
+        <Icon as={LogOutIcon} className={cn('size-5 text-destructive')} />
+        <Text className={cn('font-poppins_medium text-destructive')}>Logout</Text>
+      </Button>
     </DrawerContentScrollView>
   );
 }
@@ -104,11 +143,10 @@ export default function DrawerLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Drawer
-        // ✅ (tabs)/index.tsx = halaman pertama yang tampil
         initialRouteName="(tabs)"
         drawerContent={(props) => <CustomDrawerContent {...props} />}
         screenOptions={{
-          headerShown: false, // custom header yang handle
+          headerShown: false,
           drawerType: 'slide',
           drawerStyle: {
             backgroundColor: THEME[currentTheme].background,
@@ -118,15 +156,24 @@ export default function DrawerLayout() {
           swipeEnabled: true,
           swipeEdgeWidth: 50,
         }}>
-        {/* ✅ (tabs) — entry point utama, berisi Home/Inbox/Liked/Profile */}
         <Drawer.Screen
           name="(tabs)"
           options={{
             drawerLabel: 'Home',
-            drawerItemStyle: { display: 'none' }, // hide — pakai CustomDrawerContent
+            drawerItemStyle: { display: 'none' },
+          }}
+        />
+        <Drawer.Screen
+          name="settings"
+          options={{
+            drawerLabel: 'Settings',
+            drawerItemStyle: { display: 'none' },
           }}
         />
       </Drawer>
+
+      {/* ✅ GLOBAL QUOTE ACTIONS SHEET - Mount once at top level */}
+      <GlobalQuoteActionsSheet />
     </GestureHandlerRootView>
   );
 }

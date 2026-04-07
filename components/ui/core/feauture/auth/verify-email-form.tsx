@@ -28,11 +28,11 @@ export function VerifyEmailForm() {
   return (
     <AuthLayout
       onPress={onSubmit}
-      textButton="Verifikasi"
+      textButton="Continue"
       loading={isSubmitting}
       signInGoogleButton={false}
-      title="Verifikasi Email Anda"
-      description="Masukkan kode yang telah kami kirim ke email Anda">
+      title="Verify Your Email"
+      description="Enter the code we sent to your email">
       <View className="items-center">
         <InputOTP
           ref={otpRef as React.RefObject<any>}

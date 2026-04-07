@@ -15,8 +15,8 @@ import { View } from 'react-native';
 
 export function UserMenu() {
   const { user } = useUser();
-  const { signOut } = useAuth();
   const popoverTriggerRef = React.useRef<TriggerRef>(null);
+  const { signOut } = useAuth();
 
   async function onSignOut() {
     popoverTriggerRef.current?.close();
@@ -80,7 +80,7 @@ export function UserMenu() {
   );
 }
 
-function UserAvatar(props: Omit<React.ComponentProps<typeof Avatar>, 'alt'>) {
+export function UserAvatar(props: Omit<React.ComponentProps<typeof Avatar>, 'alt'>) {
   const { user } = useUser();
 
   const { initials, imageSource, userName } = React.useMemo(() => {

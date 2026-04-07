@@ -5,17 +5,13 @@ interface SVGRProps {
   titleId?: string;
 }
 const MenuSheetIcon = ({ title, titleId, ...props }: SvgProps & SVGRProps) => (
-  <Svg
-    fill="none"
-    viewBox="-0.5 0 25 25"
-    width={24}
-    height={24}
-    aria-labelledby={titleId}
-    {...props}>
-    {title ? <title id={titleId}>{title}</title> : null}
-    <G stroke={props.stroke} strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6}>
-      <Path d="M19 3.32h-3a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h3a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2ZM8 3.32H5a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h3a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2ZM19 14.32h-3a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h3a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2ZM8 14.32H5a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h3a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2Z" />
-    </G>
+  <Svg fill="none" viewBox="0 0 24 24" width={24} height={24} {...props}>
+    <Path
+      fill={props.fill ?? 'currentColor'}
+      fillRule="evenodd"
+      d="M2 7a1 1 0 0 1 1-1h18a1 1 0 1 1 0 2H3a1 1 0 0 1-1-1zm0 5a1 1 0 0 1 1-1h18a1 1 0 1 1 0 2H3a1 1 0 0 1-1-1zm1 4a1 1 0 1 0 0 2h18a1 1 0 1 0 0-2H3z"
+      clipRule="evenodd"
+    />
   </Svg>
 );
 export default MenuSheetIcon;

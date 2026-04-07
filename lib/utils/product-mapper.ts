@@ -1,4 +1,4 @@
-import { Product } from '@/type/product-type';
+import { Product } from '@/type/quotes-type';
 
 export function sanitizeImageUrl(raw: string | null | undefined): string | null {
   if (!raw || typeof raw !== 'string') return null;

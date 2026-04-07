@@ -31,9 +31,9 @@ type WelcomeBlockProps = {
 const WelcomeBlock = ({
   className,
 
-  title = `Grocer`,
+  title = `FogyNotion`,
 
-  description = `Shop for your daily needs without the hassle!`,
+  description = `Organize your thoughts and ideas with SmartNotes!`,
   ...props
 }: WelcomeBlockProps) => {
   const insets = useSafeAreaInsets();
@@ -68,10 +68,12 @@ const WelcomeBlock = ({
               />
             </View>
 
-            <CardTitle className="font-cinzel_semibold text-center text-5xl">{title}</CardTitle>
+            <CardTitle className="text-center font-poppins_bold text-4xl tracking-tighter">
+              {title}
+            </CardTitle>
           </CardHeader>
           <CardContent className="w-full">
-            <CardDescription className="text-center text-lg leading-relaxed tracking-widest text-muted-foreground">
+            <CardDescription className="text-center text-base leading-relaxed tracking-widest text-muted-foreground">
               {description}
             </CardDescription>
           </CardContent>
@@ -87,7 +89,7 @@ const WelcomeBlock = ({
           style={{
             bottom: insets.bottom > 0 ? insets.bottom + 4 : 12,
           }}>
-          <Button onPress={() => router.push('/(auth)/sign-up')} variant="default" size={'lg'}>
+          <Button onPress={() => router.push('/(auth)/sign-in')} variant="default" size={'lg'}>
             <Text className="font-cinzel_black text-lg text-primary-foreground">Start</Text>
           </Button>
         </View>

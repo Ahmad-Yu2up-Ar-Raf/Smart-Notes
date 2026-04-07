@@ -27,6 +27,7 @@ const animatedLabelStyle = useAnimatedStyle(() => {
 ```
 
 **Why it's wrong**:
+
 - `useAnimatedStyle` is a "worklet" (compiled to native code)
 - Can only access shared values + constants
 - Cannot read React state during render
@@ -38,13 +39,14 @@ const animatedLabelStyle = useAnimatedStyle(() => {
 const animatedButtonStyle = useAnimatedStyle(() => {
   return {
     bottom: isKeyboardOpen
-      ? keyboard.height.value + bottomWhenOpen  // ← state var!
-      : bottomWhenClosed,  // ← state var!
+      ? keyboard.height.value + bottomWhenOpen // ← state var!
+      : bottomWhenClosed, // ← state var!
   };
-}, [bottomWhenOpen, bottomWhenClosed]);  // ← State in deps = bad
+}, [bottomWhenOpen, bottomWhenClosed]); // ← State in deps = bad
 ```
 
 **Why it's wrong**:
+
 - Passing state object refs to animated callback
 - Changes trigger re-compilation of worklet
 - Causes continuous "Writing to `value`" warnings
@@ -60,7 +62,7 @@ const animatedButtonStyle = useAnimatedStyle(() => {
 const animatedLabelStyle = useAnimatedStyle(() => {
   const translateY = interpolate(animationProgress.value, [0, 1], [10, -10]);
   const scale = interpolate(animationProgress.value, [0, 1], [1, 0.75]);
-  
+
   return {
     transform: [{ translateY }, { scale }],
     // ❌ NO color here - separate below
@@ -82,6 +84,7 @@ const labelColorStyle = useMemo(() => {
 ```
 
 **Why**:
+
 - Animated part = pure (no state access)
 - Color part = React state (updates independently)
 - No Reanimated warnings
@@ -92,18 +95,15 @@ const labelColorStyle = useMemo(() => {
 
 ```typescript
 // ❌ BEFORE (constants in useMemo with dependencies)
-const bottomWhenClosed = useMemo(
-  () => (insets.bottom > 0 ? insets.bottom : 12),
-  [insets.bottom]
-);
+const bottomWhenClosed = useMemo(() => (insets.bottom > 0 ? insets.bottom : 12), [insets.bottom]);
 
 const animatedButtonStyle = useAnimatedStyle(() => {
   return {
     bottom: isKeyboardOpen
-      ? keyboard.height.value + bottomWhenOpen  // ← State var in worklet
-      : bottomWhenClosed,  // ← State var in worklet
+      ? keyboard.height.value + bottomWhenOpen // ← State var in worklet
+      : bottomWhenClosed, // ← State var in worklet
   };
-}, [bottomWhenOpen, bottomWhenClosed]);  // ← Depends on state
+}, [bottomWhenOpen, bottomWhenClosed]); // ← Depends on state
 
 // ✅ AFTER (constants as literals)
 const BOTTOM_CLOSED = insets.bottom > 0 ? insets.bottom : 12;
@@ -111,17 +111,19 @@ const BOTTOM_OPEN = 8;
 
 const animatedButtonStyle = useAnimatedStyle(() => {
   const keyboardHeight = keyboard.height.value;
-  
+
   return {
-    bottom: keyboardHeight > 0 
-      ? keyboardHeight + BOTTOM_OPEN  // ← Literal constant
-      : BOTTOM_CLOSED,  // ← Literal constant
+    bottom:
+      keyboardHeight > 0
+        ? keyboardHeight + BOTTOM_OPEN // ← Literal constant
+        : BOTTOM_CLOSED, // ← Literal constant
   };
   // ✅ NO dependency array needed
 });
 ```
 
 **Why**:
+
 - Constants defined outside don't change
 - No need for dependency tracking
 - Worklet stays pure
@@ -130,10 +132,10 @@ const animatedButtonStyle = useAnimatedStyle(() => {
 
 ## Files Modified
 
-| File | Change | Result |
-|------|--------|--------|
-| `input-form.tsx` | Separated animation from color logic | ✅ No state in worklet |
-| `auth-layout.tsx` | Used constants directly | ✅ No state dependencies |
+| File              | Change                               | Result                   |
+| ----------------- | ------------------------------------ | ------------------------ |
+| `input-form.tsx`  | Separated animation from color logic | ✅ No state in worklet   |
+| `auth-layout.tsx` | Used constants directly              | ✅ No state dependencies |
 
 ---
 
@@ -154,6 +156,7 @@ npm run start -- --reset-cache
 ```
 
 **Test interactions**:
+
 - ✅ Open Sign In form
 - ✅ Focus email input (smooth, no lag)
 - ✅ Type in email (no warnings in console)
@@ -165,12 +168,12 @@ npm run start -- --reset-cache
 
 ## Before vs After
 
-| Metric | Before | After |
-|--------|--------|-------|
-| Reanimated warnings | 20+/sec | 0 |
-| Component render | Laggy | Smooth 60fps |
-| State updates | Tied to animation | Independent |
-| Worklet purity | Broken | Pure ✓ |
+| Metric              | Before            | After        |
+| ------------------- | ----------------- | ------------ |
+| Reanimated warnings | 20+/sec           | 0            |
+| Component render    | Laggy             | Smooth 60fps |
+| State updates       | Tied to animation | Independent  |
+| Worklet purity      | Broken            | Pure ✓       |
 
 ---
 
@@ -189,15 +192,16 @@ npm run start -- --reset-cache
    - Only math on shared values
 
 3. **Separate Concerns**
+
    ```typescript
    // ✅ Animation (pure)
    const animatedStyle = useAnimatedStyle(...);
-   
+
    // ✅ State (React)
    const stateStyle = useMemo(() => ({
      color: error ? 'red' : 'blue'
    }), [error]);
-   
+
    // Combine both
    <Animated.View style={[animatedStyle, stateStyle]} />
    ```

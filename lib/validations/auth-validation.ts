@@ -97,7 +97,7 @@ export function useFormValidation<T extends Record<string, string>>({
   const handleChange = useCallback(
     (name: keyof T) => (text: string) => {
       setFormData((prev) => ({ ...prev, [name]: text }));
-      
+
       // Clear error for this field as user is typing
       setErrors((prev) => {
         if (prev[name]) {
@@ -108,7 +108,7 @@ export function useFormValidation<T extends Record<string, string>>({
         return prev;
       });
     },
-    []  // ✅ No dependencies - pure form data update
+    [] // ✅ No dependencies - pure form data update
   );
 
   // Handle field blur - mark as touched + validate
@@ -132,7 +132,7 @@ export function useFormValidation<T extends Record<string, string>>({
         return currentFormData; // Don't change formData in this updater
       });
     },
-    [validateField]  // ✅ Only depends on validateField, not formData
+    [validateField] // ✅ Only depends on validateField, not formData
   );
 
   // Validate all fields
@@ -187,9 +187,15 @@ export function useFormValidation<T extends Record<string, string>>({
       try {
         // Get current formData via functional pattern
         setFormData((currentFormData) => {
-          onSubmit(currentFormData).finally(() => {
+          const result = onSubmit(currentFormData);
+          // Handle both Promise and void returns
+          if (result && typeof result === 'object' && 'finally' in result) {
+            (result as Promise<any>).finally(() => {
+              setIsSubmitting(false);
+            });
+          } else {
             setIsSubmitting(false);
-          });
+          }
           return currentFormData;
         });
       } catch (error) {

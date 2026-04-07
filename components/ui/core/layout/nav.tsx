@@ -24,17 +24,17 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColorScheme } from 'nativewind';
 import { THEME } from '@/lib/theme';
 import { Text } from '@/components/ui/fragments/shadcn-ui/text';
-import { ShoppingBagIcon, ShoppingCartIcon, type LucideIcon } from 'lucide-react-native';
+import {  type LucideIcon } from 'lucide-react-native';
 import { Button } from '../../fragments/shadcn-ui/button';
-
+import LogoApp, { LogoAdaptive } from '../../fragments/svg/logo-app';
 import { MenuSheet } from './menu-sheet';
-import MenuSheetIcon from '../../fragments/svg/icons/menu-icon';
-import MapPinIcon from '../../fragments/svg/icons/map-pin';
-import NotifIcon from '../../fragments/svg/icons/notif-icon';
+
 import { Icon } from '../../fragments/shadcn-ui/icon';
-import { useCart } from '@/components/provider/CartProvider';
-import { cn } from '@/lib/utils';
+import { useLiked } from '@/components/provider/LikedProvider';
+
 import { router } from 'expo-router';
+import LogoAppIcon from '../../fragments/svg/logo-app';
+import { UserMenu } from '../feauture/auth/user-menu';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -74,7 +74,7 @@ function HeaderComponent({
   const insets = useSafeAreaInsets();
   const { colorScheme } = useColorScheme();
   const currentTheme = colorScheme ?? 'light';
-  const { count: cartCount } = useCart(); // ✅ Get cart count
+  const { count: cartCount } = useLiked(); // ✅ Get cart count
   const handleLeave = () => {
     router.back();
   };
@@ -109,18 +109,21 @@ function HeaderComponent({
             {title}
           </Text>
         ) : (
-          <View className="items-center justify-center gap-1 text-center">
-            <Text
+          <View className="items-center justify-center gap-7 text-center">
+            {/* <Text
               variant={'small'}
               className="font-poppins_medium text-xs tracking-tighter text-muted-foreground/60">
               Location
-            </Text>
+            </Text> */}
             <View className="w-fit flex-row items-center gap-1.5">
-              <MapPinIcon fill={foregroundColor} />
+              <View className="size-12 scale-75">
+                <LogoAdaptive />
+              </View>
+
               <Text
                 variant="h4"
-                className="text-center font-poppins_medium text-base tracking-tighter">
-                Indonesia
+                className="text-center font-poppins_semibold text-base tracking-tighter">
+                FogyNotion
               </Text>
             </View>
           </View>
@@ -138,28 +141,7 @@ function HeaderComponent({
               <Icon as={RightIcon} className="size-6" />
             </Button>
           ) : (
-            <Pressable
-              onPress={() => {
-                router.push('/cart');
-              }}
-              className="relative">
-              <Button
-                onPress={() => {
-                  router.push('/cart');
-                }}
-                size="icon"
-                className="size-12 rounded-full bg-card">
-                <Icon as={ShoppingCartIcon} className="size-5" />
-              </Button>
-              {/* ✅ Cart badge */}
-              {cartCount > 0 && (
-                <View className="absolute -right-1 top-1 flex size-5 items-center justify-center rounded-full bg-primary">
-                  <Text variant={'small'} className="text-[10px] font-bold text-primary-foreground">
-                    {cartCount > 99 ? '99+' : cartCount}
-                  </Text>
-                </View>
-              )}
-            </Pressable>
+            <UserMenu />
           )}
         </View>
       </View>

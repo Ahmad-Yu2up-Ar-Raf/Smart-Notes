@@ -20,7 +20,7 @@ import { Icon } from '../../shadcn-ui/icon';
 import { ShoppingCartIcon, Star, Check, MinusIcon, PlusIcon } from 'lucide-react-native';
 import { Image } from '../../shadcn-ui/image';
 
-import { CartItem } from '@/lib/storage/cart-storage';
+import { CartItem } from '@/lib/storage/liked-storage';
 
 type componentProps = ViewProps & {
   className?: string;

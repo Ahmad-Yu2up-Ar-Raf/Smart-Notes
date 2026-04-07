@@ -9,8 +9,11 @@ import type { AppStateStatus } from 'react-native';
 import { ClerkProvider, useAuth } from '@clerk/clerk-expo';
 import { ToastProvider } from '../ui/fragments/shadcn-ui/toast';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { CartProvider } from './CartProvider';
+
 import { tokenCache } from '@clerk/clerk-expo/token-cache';
+import { LikedProvider } from './LikedProvider';
+import { QuoteActionsSheetProvider } from './QuoteActionsSheetProvider';
+
 type ComponentProps = {
   children?: React.ReactNode;
 };
@@ -54,16 +57,19 @@ export default function Provider({ children }: ComponentProps) {
         <ThemeProvider value={NAV_THEME[colorScheme ?? 'light']}>
           <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
           {/*
-          ✅ Provider order:
-          - CartProvider: top level untuk global cart access
-          - GestureHandlerRootView: untuk gesture handling
-          - ToastProvider: untuk toast notifications
+          ✅ Provider order (from bottom to top):
+          - LikedProvider: global cart state
+          - QuoteActionsSheetProvider: global sheet state (NEW!)
+          - GestureHandlerRootView: gesture handling
+          - ToastProvider: toast notifications
         */}
-          <CartProvider>
-            <GestureHandlerRootView>
-              <ToastProvider>{children}</ToastProvider>
-            </GestureHandlerRootView>
-          </CartProvider>
+          <LikedProvider>
+            <QuoteActionsSheetProvider>
+              <GestureHandlerRootView>
+                <ToastProvider>{children}</ToastProvider>
+              </GestureHandlerRootView>
+            </QuoteActionsSheetProvider>
+          </LikedProvider>
         </ThemeProvider>
       </QueryClientProvider>
     </ClerkProvider>

@@ -1,6 +1,7 @@
 # 🔍 Maximum Call Stack Error - ROOT CAUSE ANALYSIS
 
 ## Previous Fixes Applied ✅
+
 1. Removed `toggleKeyboard()` from `handleFocus` in `input-form.tsx`
 2. Added `signInGoogleButton={true}` to forms
 3. Memoized theme calculations
@@ -16,11 +17,12 @@ The infinite loop was caused by **STATE OBJECTS IN DEPENDENCY ARRAYS**:
 const handleChange = useCallback(
   (name: keyof T) => (text: string) => {
     setFormData((prev) => ({ ...prev, [name]: text }));
-    if (validateOnChange && touched[name]) {  // ← Check state
+    if (validateOnChange && touched[name]) {
+      // ← Check state
       validateField(name, text);
     }
   },
-  [touched, validateField, validateOnChange]  // ← PROBLEM: touched state in deps!
+  [touched, validateField, validateOnChange] // ← PROBLEM: touched state in deps!
 );
 ```
 
@@ -42,16 +44,18 @@ const handleChange = useCallback(
 ## All Issues Fixed in `useFormValidation`:
 
 ### ❌ Problem 1: `handleChange` depends on `touched`
+
 ```typescript
 // ❌ BEFORE
 const handleChange = useCallback(
   (name: keyof T) => (text: string) => {
     setFormData((prev) => ({ ...prev, [name]: text }));
-    if (validateOnChange && touched[name]) {  // ← touched in closure
+    if (validateOnChange && touched[name]) {
+      // ← touched in closure
       validateField(name, text);
     }
   },
-  [touched, validateField, validateOnChange]  // ← touched in deps!
+  [touched, validateField, validateOnChange] // ← touched in deps!
 );
 
 // ✅ AFTER
@@ -68,7 +72,7 @@ const handleChange = useCallback(
       return prev;
     });
   },
-  []  // ✅ NO DEPENDENCIES - Stable callback reference!
+  [] // ✅ NO DEPENDENCIES - Stable callback reference!
 );
 ```
 
@@ -77,6 +81,7 @@ const handleChange = useCallback(
 ---
 
 ### ❌ Problem 2: `handleBlur` depends on `formData`
+
 ```typescript
 // ❌ BEFORE
 const handleBlur = useCallback(
@@ -92,7 +97,7 @@ const handleBlur = useCallback(
 const handleBlur = useCallback(
   (name: keyof T) => () => {
     setTouched((prev) => ({ ...prev, [name]: true }));
-    
+
     // Get current formData from setState updater function
     setFormData((currentFormData) => {
       const error = validateField(name, currentFormData[name]);
@@ -117,6 +122,7 @@ const handleBlur = useCallback(
 ---
 
 ### ❌ Problem 3: `validateAll` depends on `formData`
+
 ```typescript
 // ❌ BEFORE
 const validateAll = useCallback((): boolean => {
@@ -152,12 +158,13 @@ const validateAll = useCallback((): boolean => {
 ---
 
 ### ❌ Problem 4: `handleSubmit` depends on `formData`
+
 ```typescript
 // ❌ BEFORE
 const handleSubmit = useCallback(async () => {
   const allTouched = Object.keys(formData).reduce(...);  // ← formData in closure
   setTouched(allTouched);
-  
+
   if (validateAll()) {
     setIsSubmitting(true);
     await onSubmit(formData);  // ← Using formData directly
@@ -198,20 +205,20 @@ When you need state value in a callback:
 // ❌ DON'T - Add state to dependency array
 const useMyHook = (state: T) => {
   const handleChange = useCallback(() => {
-    doSomething(state);  // Using state
-  }, [state]);  // ← Adds to dependencies
+    doSomething(state); // Using state
+  }, [state]); // ← Adds to dependencies
 };
 
 // ✅ DO - Use functional setState
 const useMyHook = () => {
   const [state, setState] = useState<T>(initialValue);
-  
+
   const handleChange = useCallback(() => {
     setState((currentState) => {
-      doSomething(currentState);  // Access current state
-      return currentState;  // Or return modified state
+      doSomething(currentState); // Access current state
+      return currentState; // Or return modified state
     });
-  }, []);  // ← No dependencies!
+  }, []); // ← No dependencies!
 };
 ```
 
@@ -219,15 +226,15 @@ const useMyHook = () => {
 
 ## 📊 Impact Summary
 
-| Issue | Before | After |
-|-------|--------|-------|
-| `handleChange` deps | `[touched, validateField, validateOnChange]` | `[]` |
-| `handleBlur` deps | `[formData, validateField]` | `[validateField]` |
-| `validateAll` deps | `[formData, validateField]` | `[validateField]` |
-| `handleSubmit` deps | `[formData, validateAll, onSubmit]` | `[validateAll, onSubmit]` |
-| Callback recreations | 50+ per keystroke | 1-2 per session |
-| Re-renders | Infinite/exponential | Linear |
-| Stack overflow | ❌ Yes | ✅ No |
+| Issue                | Before                                       | After                     |
+| -------------------- | -------------------------------------------- | ------------------------- |
+| `handleChange` deps  | `[touched, validateField, validateOnChange]` | `[]`                      |
+| `handleBlur` deps    | `[formData, validateField]`                  | `[validateField]`         |
+| `validateAll` deps   | `[formData, validateField]`                  | `[validateField]`         |
+| `handleSubmit` deps  | `[formData, validateAll, onSubmit]`          | `[validateAll, onSubmit]` |
+| Callback recreations | 50+ per keystroke                            | 1-2 per session           |
+| Re-renders           | Infinite/exponential                         | Linear                    |
+| Stack overflow       | ❌ Yes                                       | ✅ No                     |
 
 ---
 
@@ -258,6 +265,7 @@ const useMyHook = () => {
 ## 🚀 Clean Up & Testing Steps
 
 1. **Clear Metro bundler cache**:
+
    ```bash
    npm run start -- --reset-cache
    ```
@@ -286,6 +294,7 @@ const useMyHook = () => {
 ## 💡 Key Takeaway
 
 **State objects should NEVER be in dependency arrays.** Instead:
+
 - Use functional setState to access current state
 - Or extract non-state-dependent logic
 - This prevents reference changes and infinite loops

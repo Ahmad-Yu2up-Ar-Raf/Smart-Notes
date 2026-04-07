@@ -24,10 +24,10 @@ export function ResetPasswordForm() {
       onPress={handleSubmit}
       textButton="Reset"
       signInGoogleButton={false}
-      title="Reset Password Anda"
+      title="Reset Password"
       loading={isSubmitting}
       className="mb-4"
-      description=" Masukkan password baru Anda dan kode verifikasi yang telah kami kirim ke email Anda">
+      description=" Enter your new password and the verification code we sent to your email">
       <GroupedInput>
         <GroupedInputItem
           disabled={isSubmitting}

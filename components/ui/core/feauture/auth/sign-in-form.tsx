@@ -54,8 +54,8 @@ export function SignInForm() {
       onPress={handleSubmit}
       loading={isSubmitting}
       signInGoogleButton={true}
-      title="Selamat Datang!"
-      description="Masuk untuk melanjutkan"
+      title="Welcome Back!"
+      description="Sign in to continue"
       formType="login">
       <GroupedInput>
         <GroupedInputItem
@@ -127,12 +127,12 @@ export function SignInForm() {
             onPress={Platform.select({ native: toggleCheckedState('termsChecked') })}
             htmlFor="terms"
             className="text-muted-foreground">
-            Ingat Saya
+            Remember Me
           </Label>
         </View>
         <Link asChild href={`/(auth)/forgot-password?email=${formData.email}`}>
           <Button variant="link" size="sm" className="ml-auto h-fit px-1 py-0 web:h-fit sm:h-4">
-            <Text className="text-sm font-normal leading-4">Lupa password?</Text>
+            <Text className="text-sm font-normal leading-4">Forgot password?</Text>
           </Button>
         </Link>
       </View>

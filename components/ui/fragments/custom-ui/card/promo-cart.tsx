@@ -11,7 +11,6 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import { View, ViewProps } from 'react-native';
 
-import { CartItem } from '@/lib/storage/cart-storage';
 import { Icon } from '../../shadcn-ui/icon';
 import { TicketPercent } from 'lucide-react-native';
 import { Button } from '../../shadcn-ui/button';

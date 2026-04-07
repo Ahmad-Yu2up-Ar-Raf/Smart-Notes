@@ -48,7 +48,7 @@ const AuthLayout = ({
   quote = `Your ideas are not just talk — make them happen.`,
   description = `The journey is about to begin`,
   onPress,
-  textButton = 'Masuk',
+  textButton = 'Login',
   ...props
 }: AuthLayoutProps) => {
   const insets = useSafeAreaInsets();
@@ -99,13 +99,13 @@ const AuthLayout = ({
           <CardFooter className="relative flex w-full flex-col gap-5 overflow-hidden p-0">
             <View className="flex-row items-center">
               <Separator className="flex-1" />
-              <Text className="px-4 text-sm text-muted-foreground">atau lanjutkan dengan</Text>
+              <Text className="px-4 text-sm text-muted-foreground">or continue with</Text>
               <Separator className="flex-1" />
             </View>
             <SocialConnections />
             {formType && (
               <Text className="mt-2 text-start text-sm text-muted-foreground">
-                {formType == 'register' ? `Sudah punya akun? ` : ' Belum punya akun? '}
+                {formType == 'register' ? `Already have an account? ` : "Don't have an account? "}
                 <Link href={formTypeLink} className="text-primary underline underline-offset-4">
                   {formTypeLabel}
                 </Link>

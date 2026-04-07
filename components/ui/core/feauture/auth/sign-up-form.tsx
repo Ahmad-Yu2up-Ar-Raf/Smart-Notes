@@ -29,12 +29,12 @@ export function SignUpForm() {
   return (
     <AuthLayout
       onPress={handleSubmit}
-      textButton="Daftar"
+      textButton="Sign Up"
       formType="register"
       loading={isSubmitting}
       signInGoogleButton={true}
-      title="Buat Akun Baru"
-      description="Mari berkenalan dengan kami!">
+      title="Create Your Account"
+      description="Let's get to know each other!">
       <GroupedInput>
         <GroupedInputItem
           disabled={isSubmitting}

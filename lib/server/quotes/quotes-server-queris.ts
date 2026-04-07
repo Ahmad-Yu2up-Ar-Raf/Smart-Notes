@@ -1,81 +1,77 @@
-// lib/server/Products/products-server-queries.ts
+// lib/server/Quotes/quotes-server-queries.ts
 //
 // ARSITEKTUR:
-//   - ProductsListFilters sekarang pakai `category?: Category[]` (array) → multi-select
+//   - QuotesListFilters sekarang pakai `category?: Category[]` (array) → multi-select
 //   - Filter dilakukan client-side setelah fetch semua data
 //   - queryKey mengandung filters → TanStack otomatis re-fetch saat filter berubah
 //   - staleTime 5 menit → data di-cache, switch filter tidak re-fetch ke network
 //     selama cache masih fresh (hanya re-compute filter dari cache)
 
 import { queryOptions } from '@tanstack/react-query';
-import { fetchAllProducts, fetchProductById } from './products-server';
-import { Product, Category } from '@/type/product-type';
+import { fetchAllQuotes, fetchQuoteById } from './quotes-server';
+import { Quote } from '@/type/quotes-type';
 
 // ─── Filter shape ─────────────────────────────────────────────────────────────
 // `category` adalah array agar mendukung multi-select:
 //   []            → tidak ada filter aktif → tampilkan semua
 //   ['pagi']      → hanya pagi
 //   ['pagi','solat'] → pagi DAN solat (union, bukan intersection)
-export type ProductsListFilters = {
+export type QuotesListFilters = {
   search?: string;
-  category?: Category[]; // ← CHANGED: was `type?: Category`, now array for multi-select
 };
 
 // ─── Query Keys ───────────────────────────────────────────────────────────────
 // Key mengandung filters object → setiap kombinasi filter punya cache entry sendiri
 // Ini memungkinkan instant switching antar filter kombinasi yang sudah pernah di-fetch
-export const ProductsKeys = {
-  all: ['Products'] as const,
-  lists: () => [...ProductsKeys.all, 'list'] as const,
+export const QuotesKeys = {
+  all: ['Quotes'] as const,
+  lists: () => [...QuotesKeys.all, 'list'] as const,
 
   // Normalisasi key: sort category array agar ['pagi','solat'] === ['solat','pagi']
   // Ini mencegah cache miss akibat urutan filter yang berbeda
-  list: (filters?: ProductsListFilters) => {
+  list: (filters?: QuotesListFilters) => {
     const normalizedFilters = filters
       ? {
           ...filters,
-          category: filters.category ? [...filters.category].sort() : undefined,
         }
       : {};
-    return [...ProductsKeys.lists(), normalizedFilters] as const;
+    return [...QuotesKeys.lists(), normalizedFilters] as const;
   },
 
-  detail: (id: number) => [...ProductsKeys.all, 'detail', id] as const,
+  detail: (id: number) => [...QuotesKeys.all, 'detail', id] as const,
 };
 
 // ─── List Query Options ───────────────────────────────────────────────────────
 // Reusable di seluruh app: cukup pass `filters` yang berbeda
 // TanStack Query handle dedup + caching otomatis berdasarkan queryKey
-export function ProductsListQueryOptions(filters?: ProductsListFilters & { base_url: string }) {
+export function QuotesListQueryOptions(filters?: QuotesListFilters & { base_url: string }) {
   return queryOptions({
-    queryKey: ProductsKeys.list(filters),
+    queryKey: QuotesKeys.list(filters),
 
-    queryFn: async (): Promise<Product[]> => {
+    queryFn: async (): Promise<Quote[]> => {
       // Fetch semua data sekali → di-cache oleh TanStack
       // Filter dilakukan in-memory → switch filter = instant, tanpa network call
-      const all = await fetchAllProducts(filters?.base_url ?? 'https://dummyjson.com/products');
+      const all = await fetchAllQuotes();
       if (!filters) return all;
 
       const q = filters.search?.trim().toLowerCase() ?? '';
 
       // `category` kosong atau undefined → tampilkan semua (no type filter)
-      const hasCategoryFilter = (filters.category?.length ?? 0) > 0;
 
       return all.filter((item) => {
         // Search filter: match arab atau terjemahan indo
         const matchSearch =
-          !q || item.title.toLowerCase().includes(q) || item.description.toLowerCase().includes(q);
+          !q || item.author.toLowerCase().includes(q) || item.quote.toLowerCase().includes(q);
 
         // Category filter: item.type harus ada di dalam array category yang dipilih
         // Jika tidak ada filter type → semua lolos
-        const matchCategory = !hasCategoryFilter || filters.category!.includes(item.category);
 
-        return matchSearch && matchCategory;
+        return matchSearch;
       });
     },
 
     // Data dianggap fresh selama 5 menit → switch filter tidak trigger network call
-    // jika data root ('Products','list',{}) masih di cache
+    // jika data root ('Quotes','list',{}) masih di cache
     staleTime: 5 * 60 * 1000,
 
     // Data tetap di memory 30 menit sejak terakhir digunakan
@@ -85,11 +81,11 @@ export function ProductsListQueryOptions(filters?: ProductsListFilters & { base_
   });
 }
 
-export function productByIdQueryOptions(id: number) {
+export function quoteByIdQueryOptions(id: number) {
   return queryOptions({
-    queryKey: ProductsKeys.detail(id),
+    queryKey: QuotesKeys.detail(id),
     queryFn: async () => {
-      const raw = await fetchProductById(id);
+      const raw = await fetchQuoteById(id);
       return raw;
     },
     staleTime: 5 * 60 * 1000,

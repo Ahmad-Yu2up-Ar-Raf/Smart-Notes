@@ -6,11 +6,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HapticTab } from '@/components/ui/core/haptic-tab';
 import HeartIcon from '@/components/ui/fragments/svg/icons/heart';
 
-import { View } from 'react-native';
-import ProfileIcon from '@/components/ui/fragments/svg/icons/profile-icon';
 import HomeIcon from '@/components/ui/fragments/svg/icons/home';
 
-import NotifIcon from '@/components/ui/fragments/svg/icons/notif-icon';
+import ArchiveIcon from '@/components/ui/fragments/svg/icons/archive-icon';
+import QuoteIcon from '@/components/ui/fragments/svg/icons/quotes-icon';
+ 
 
 export default function TabsLayout() {
   const { colorScheme } = useColorScheme();
@@ -67,14 +67,29 @@ export default function TabsLayout() {
         />
 
         <Tabs.Screen
-          name="inbox"
+          name="archive"
           options={{
             headerShown: false,
-            title: 'Inbox',
+            title: 'Archive',
             tabBarShowLabel: false,
             tabBarButton: HapticTab,
             tabBarIcon: ({ color, focused }) => (
-              <NotifIcon
+              <ArchiveIcon
+                fill={focused ? tintColor : 'none'}
+                stroke={focused ? tintColor : inactiveTintColor}
+              />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="quotes"
+          options={{
+            headerShown: false,
+            title: 'Quotes',
+            tabBarShowLabel: false,
+            tabBarButton: HapticTab,
+            tabBarIcon: ({ color, focused }) => (
+              <QuoteIcon
                 fill={focused ? tintColor : 'none'}
                 stroke={focused ? tintColor : inactiveTintColor}
               />
@@ -92,23 +107,6 @@ export default function TabsLayout() {
                 fill={focused ? tintColor : 'none'}
                 stroke={focused ? tintColor : inactiveTintColor}
               />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="profile"
-          options={{
-            headerShown: false,
-            title: 'Profile',
-            tabBarShowLabel: false,
-            tabBarButton: HapticTab,
-            tabBarIcon: ({ color, focused }) => (
-              <View className="mb-1 size-full p-0.5">
-                <ProfileIcon
-                  fill={focused ? tintColor : 'none'}
-                  stroke={focused ? tintColor : inactiveTintColor}
-                />
-              </View>
             ),
           }}
         />

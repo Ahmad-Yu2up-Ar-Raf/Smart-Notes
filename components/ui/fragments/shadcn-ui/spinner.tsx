@@ -10,15 +10,15 @@ type IconProps = LucideProps & {
 
 // Map size variants to pixel values
 const sizeVariants: Record<string | number, number> = {
-  'sm': 16,
-  'md': 20,
-  'lg': 24,
+  sm: 16,
+  md: 20,
+  lg: 24,
 };
 
 function Spinner({ className, as, size = 'md', ...props }: IconProps) {
   // Convert size variant to pixel value if needed
-  const pixelSize = typeof size === 'number' ? size : (sizeVariants[size] || 20);
-  
+  const pixelSize = typeof size === 'number' ? size : sizeVariants[size] || 20;
+
   return (
     <Icon
       as={as ?? Loader2Icon}
