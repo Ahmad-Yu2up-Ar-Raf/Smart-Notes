@@ -5,7 +5,7 @@ interface SVGRProps {
   titleId?: string;
 }
 const MenuSheetIcon = ({ title, titleId, ...props }: SvgProps & SVGRProps) => (
-  <Svg fill="none" viewBox="0 0 24 24" width={24} height={24} {...props}>
+  <Svg opacity={0.7} fill="none" viewBox="0 0 24 24" width={24} height={24} {...props}>
     <Path
       fill={props.fill ?? 'currentColor'}
       fillRule="evenodd"

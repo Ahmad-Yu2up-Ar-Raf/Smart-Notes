@@ -22,7 +22,8 @@ export function MenuSheet() {
   return (
     <Button
       size="icon"
-      className="size-12 rounded-full bg-card"
+      variant={'ghost'}
+      className="size-12 rounded-full  "
       onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
       <MenuSheetIcon stroke={tintColor} className="size-5" />
     </Button>

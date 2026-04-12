@@ -35,6 +35,7 @@ type LikedContextState = {
   isPending: boolean; // ← Optimistic operation pending
 
   // Operations
+  toggleLike: (quote: Quote) => void; // ⚡ INSTANT FEEDBACK - Fire & Forget!
   addItem: (quote: Quote, quantity?: number) => Promise<void>;
   updateQuantity: (quoteId: number, quantity: number) => Promise<void>;
   removeItem: (quoteId: number) => Promise<void>;
@@ -77,6 +78,71 @@ export function LikedProvider({ children }: { children: React.ReactNode }) {
 
     initLiked();
   }, []);
+
+  /**
+   * ✅ TOGGLE LIKE - BEST PRACTICE FOR INSTANT FEEDBACK
+   *
+   * This is the KEY function for instant heart ❤️ button feedback!
+   *
+   * How it works:
+   * 1. Instantly check if already liked (0ms)
+   * 2. Immediately update UI (optimistic) (0ms)
+   * 3. Fire storage sync in background (non-blocking)
+   * 4. Auto-rollback on error
+   *
+   * NO AWAITING = NO DELAY! User sees heart change instantly ⚡
+   */
+  const toggleLike = useCallback(
+    (quote: Quote) => {
+      // ✅ STEP 1: Check current state (instant, from memory)
+      const hasLiked = items.some((item) => item.quote.id === quote.id);
+
+      // ✅ STEP 2: Update UI immediately (optimistic)
+      startTransition(() => {
+        if (hasLiked) {
+          // ❌ Remove from liked
+          const updatedItems = items.filter((item) => item.quote.id !== quote.id);
+          setItems(updatedItems);
+          setCount(updatedItems.reduce((sum, item) => sum + item.quantity, 0));
+        } else {
+          // ✅ Add to liked
+          const updatedItems = [...items, { quote, quantity: 1 }];
+          setItems(updatedItems);
+          setCount(updatedItems.reduce((sum, item) => sum + item.quantity, 0));
+        }
+      });
+
+      // ✅ STEP 3: Sync to storage IN BACKGROUND (fire & forget!)
+      // This runs AFTER UI is updated, doesn't block heart button
+      requestAnimationFrame(async () => {
+        try {
+          console.log('⚡ Optimistic update complete, syncing to storage...');
+          if (hasLiked) {
+            await removeFromLiked(quote.id);
+            console.log('✅ Removed from storage');
+          } else {
+            await addToLiked(quote, 1);
+            console.log('✅ Added to storage');
+          }
+        } catch (error) {
+          console.error('❌ Storage sync failed:', error);
+
+          // ↩️ STEP 4: Rollback if error
+          try {
+            console.log('↩️ Rolling back to storage state...');
+            const freshLiked = await getLiked();
+            const freshCount = await getLikedCount();
+            setItems(freshLiked);
+            setCount(freshCount);
+            console.log('✅ Rollback complete');
+          } catch (rollbackError) {
+            console.error('❌ Rollback failed:', rollbackError);
+          }
+        }
+      });
+    },
+    [items]
+  );
 
   /**
    * ✅ ADD TO CART (Optimistic)
@@ -263,6 +329,7 @@ export function LikedProvider({ children }: { children: React.ReactNode }) {
 
     isLoading,
     isPending, // ← User dapat check if optimistic operation sedang berjalan
+    toggleLike, // ⚡ NEW: Fire & Forget for instant feedback
     addItem,
     updateQuantity,
     removeItem,

@@ -250,7 +250,7 @@ export function QuoteActionsSheet({ isOpen, quote, onClose }: QuoteActionsSheetP
                 )}
                 <Text
                   className={cn(
-                    'font-cinzel_black text-lg',
+                    'text-lg',
                     isLiked ? 'text-destructive-foreground' : 'text-primary-foreground'
                   )}>
                   {isPending ? 'Processing...' : isLiked ? 'Remove from Liked' : 'Save to Liked'}
@@ -259,7 +259,7 @@ export function QuoteActionsSheet({ isOpen, quote, onClose }: QuoteActionsSheetP
 
               {/* ✅ CLOSE BUTTON */}
               <Button variant="outline" size="lg" onPress={handleClose}>
-                <Text className="font-cinzel_black text-lg text-foreground">Cancel</Text>
+                <Text className="text-lg text-foreground">Cancel</Text>
               </Button>
 
               {/* ✅ INFO TEXT */}

@@ -24,7 +24,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColorScheme } from 'nativewind';
 import { THEME } from '@/lib/theme';
 import { Text } from '@/components/ui/fragments/shadcn-ui/text';
-import {  type LucideIcon } from 'lucide-react-native';
+import { PlusIcon, type LucideIcon } from 'lucide-react-native';
 import { Button } from '../../fragments/shadcn-ui/button';
 import LogoApp, { LogoAdaptive } from '../../fragments/svg/logo-app';
 import { MenuSheet } from './menu-sheet';
@@ -38,7 +38,7 @@ import { UserMenu } from '../feauture/auth/user-menu';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface ScreenOptionsParams {
+export interface ScreenOptionsParams {
   title?: string;
   transparent?: boolean;
   leftIcon?: LucideIcon;
@@ -78,6 +78,9 @@ function HeaderComponent({
   const handleLeave = () => {
     router.back();
   };
+  const handlePost = () => {
+    router.push('/(drawer)/post');
+  };
   const bgColor = transparent ? 'transparent' : THEME[currentTheme].background;
 
   const foregroundColor = THEME[currentTheme].foreground;
@@ -85,14 +88,15 @@ function HeaderComponent({
     <>
       <View
         style={{ paddingTop: insets.top + 7, backgroundColor: bgColor }}
-        className="flex-row items-center justify-between px-5 pb-3">
+        className="flex-row items-center justify-between px-4 pb-3">
         {/* Left action */}
         <View className="w-10 items-start">
           {LeftIcon ? (
             <Button
+              variant={'ghost'}
               onPress={leftAction ?? handleLeave}
               size="icon"
-              className="size-12 rounded-full bg-card">
+              className="size-12 rounded-full  ">
               <Icon as={LeftIcon} className="size-6" />
             </Button>
           ) : (
@@ -104,7 +108,7 @@ function HeaderComponent({
         {title ? (
           <Text
             variant="h4"
-            className="text-center font-poppins_medium text-xl tracking-tighter"
+            className="line-clamp-1 text-center font-poppins_medium text-xl tracking-tighter"
             numberOfLines={1}>
             {title}
           </Text>
@@ -116,7 +120,7 @@ function HeaderComponent({
               Location
             </Text> */}
             <View className="w-fit flex-row items-center gap-1.5">
-              <View className="size-12 scale-75">
+              <View className="size-12 scale-[.70]">
                 <LogoAdaptive />
               </View>
 
@@ -135,13 +139,20 @@ function HeaderComponent({
             RigthComponent
           ) : RightIcon ? (
             <Button
+              variant={'ghost'}
               onPress={rightAction ?? handleLeave}
               size="icon"
-              className="size-12 rounded-full bg-card">
+              className="size-12 rounded-full  ">
               <Icon as={RightIcon} className="size-6" />
             </Button>
           ) : (
-            <UserMenu />
+            <Button
+              variant={'ghost'}
+              onPress={rightAction ?? handlePost}
+              size="icon"
+              className="size-12 rounded-full ">
+              <Icon as={PlusIcon} className="size-6" />
+            </Button>
           )}
         </View>
       </View>
@@ -162,6 +173,7 @@ export const SCREEN_OPTIONS = ({
   leftIcon,
   leftAction,
   rightIcon,
+  RigthComponent,
   rightAction,
   children,
   // backward compat
@@ -175,8 +187,9 @@ export const SCREEN_OPTIONS = ({
       leftIcon={leftIcon}
       leftAction={leftAction}
       rightIcon={rightIcon}
+      RigthComponent={RigthComponent}
       children={children}
       rightAction={rightAction}
     />
-  ),
+    ),
 });

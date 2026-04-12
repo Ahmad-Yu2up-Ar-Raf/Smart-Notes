@@ -118,7 +118,9 @@ const AuthLayout = ({
       {/* ✅ Animated.View menggantikan View biasa agar bisa menerima animatedButtonStyle */}
       <Animated.View className="absolute left-0 right-0 px-5" style={animatedButtonStyle}>
         <Button variant="default" size={'lg'} onPress={onPress} disabled={loading}>
-          <Text className="font-cinzel_black text-lg text-primary-foreground">{textButton}</Text>
+          <Text className="font-poppins_semibold text-lg text-primary-foreground">
+            {textButton}
+          </Text>
           {loading && <Spinner className="text-primary-foreground" />}
         </Button>
       </Animated.View>

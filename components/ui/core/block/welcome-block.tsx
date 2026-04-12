@@ -49,11 +49,11 @@ const WelcomeBlock = ({
         <View
           className={cn('absolute -right-4 h-fit w-full scale-[1.12]')}
           style={{
-            top: insets.top > 0 ? insets.top - 80 : 12,
+            top: insets.top > 0 ? insets.top - 50 : 12,
           }}>
           <ReactangleSVG className="relative size-full" />
         </View>
-        <Card className="m-auto flex h-full w-full max-w-sm content-center justify-center gap-8 border-0 bg-transparent p-2 shadow-none sm:border-border">
+        <Card className="m-auto flex h-full w-full max-w-sm content-center justify-center gap-7 border-0 bg-transparent p-2 shadow-none sm:border-border">
           <CardHeader className="relative flex w-full flex-col content-center items-center justify-center gap-8 overflow-visible p-0">
             <View
               className="flex scale-[1.2] content-center items-center justify-center overflow-visible rounded-full"
@@ -68,7 +68,7 @@ const WelcomeBlock = ({
               />
             </View>
 
-            <CardTitle className="text-center font-poppins_bold text-4xl tracking-tighter">
+            <CardTitle className="pb-2 text-center font-poppins_bold text-4xl tracking-tighter">
               {title}
             </CardTitle>
           </CardHeader>
@@ -90,7 +90,7 @@ const WelcomeBlock = ({
             bottom: insets.bottom > 0 ? insets.bottom + 4 : 12,
           }}>
           <Button onPress={() => router.push('/(auth)/sign-in')} variant="default" size={'lg'}>
-            <Text className="font-cinzel_black text-lg text-primary-foreground">Start</Text>
+            <Text className="font-poppins_semibold text-lg text-primary-foreground">Start</Text>
           </Button>
         </View>
       </SafeAreaView>

@@ -14,6 +14,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/fragments/shadcn-ui/button';
 import {
   Archive,
+  FolderClosed,
+  FolderIcon,
+  FolderOpenIcon,
   LogOutIcon,
   LucideIcon,
   NotepadText,
@@ -26,7 +29,6 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@clerk/clerk-expo';
 import { Separator } from '@/components/ui/fragments/shadcn-ui/separator';
 import { LogoAdaptive } from '@/components/ui/fragments/svg/logo-app';
-import { GlobalQuoteActionsSheet } from '@/components/ui/core/sheet/GlobalQuoteActionsSheet';
 
 // ─── Menu Config ──────────────────────────────────────────────────────────────
 
@@ -35,12 +37,19 @@ interface DrawerMenuItem {
   label: string;
   route: Href;
   match: string;
+  activeIcon?: LucideIcon; // opsional, untuk icon aktif (misal versi filled)
 }
 
 const DRAWER_MENU: DrawerMenuItem[] = [
   { Icon: NotepadText, label: 'All Notes', route: '/(drawer)/(tabs)', match: '/' },
   { Icon: Star, label: 'Favorites', route: '/(drawer)/(tabs)/liked', match: '/liked' },
-  { Icon: Archive, label: 'Archive', route: '/(drawer)/(tabs)/archive', match: '/archive' },
+  {
+    Icon: FolderClosed,
+    activeIcon: FolderOpenIcon,
+    label: 'Archive',
+    route: '/(drawer)/(tabs)/archive',
+    match: '/archive',
+  },
   { Icon: Trash2Icon, label: 'Trash', route: '/(drawer)/trash', match: '/trash' },
   { Icon: Settings, label: 'Settings', route: '/(drawer)/settings', match: '/settings' },
 ] as const;
@@ -70,7 +79,7 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
       }}
       className="relative">
       {/* Branding */}
-      <View className="h-fit w-full items-start justify-start gap-8 px-5">
+      <View className="h-full w-full items-start justify-start gap-8 px-5">
         <View className="items-start justify-start gap-7 text-start">
           <View className="w-fit flex-row items-center gap-6">
             <View className="size-12">
@@ -85,7 +94,7 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
 
         {/* Divider */}
         <Separator className="m-auto mb-1 mt-0 w-full" />
-        <View className="gap-1 px-2">
+        <View className="w-full gap-1 px-2">
           {DRAWER_MENU.map((item) => {
             const isActive = pathname === item.match;
             return (
@@ -102,7 +111,7 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
                   item.label == 'Settings' && 'mt-14'
                 )}>
                 <Icon
-                  as={item.Icon}
+                  as={isActive && item.activeIcon ? item.activeIcon : item.Icon}
                   className={cn(isActive ? 'text-primary' : 'text-muted-foreground', 'size-5')}
                 />
                 <Text
@@ -116,20 +125,17 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
             );
           })}
         </View>
+        <Button
+          onPress={onSignOut}
+          size={'lg'}
+          variant={'ghost'}
+          key={'logout'}
+          className="absolute bottom-5 left-6 m-auto h-fit w-full flex-row items-center justify-start gap-5 p-2 active:opacity-60">
+          <Icon as={LogOutIcon} className={cn('size-5 text-destructive')} />
+          <Text className={cn('font-poppins_medium text-destructive')}>Logout</Text>
+        </Button>
       </View>
       {/* Menu Items */}
-      <Button
-        onPress={onSignOut}
-        size={'lg'}
-        variant={'ghost'}
-        key={'logout'}
-        style={{
-          marginBottom: insets.bottom > 0 ? insets.bottom + 1 : 12,
-        }}
-        className="absolute bottom-0 mb-0 h-fit w-full flex-1 flex-row items-center justify-start gap-5 p-10 active:opacity-60">
-        <Icon as={LogOutIcon} className={cn('size-5 text-destructive')} />
-        <Text className={cn('font-poppins_medium text-destructive')}>Logout</Text>
-      </Button>
     </DrawerContentScrollView>
   );
 }
@@ -170,10 +176,14 @@ export default function DrawerLayout() {
             drawerItemStyle: { display: 'none' },
           }}
         />
+        <Drawer.Screen
+          name="post"
+          options={{
+            drawerLabel: 'Post',
+            drawerItemStyle: { display: 'none' },
+          }}
+        />
       </Drawer>
-
-      {/* ✅ GLOBAL QUOTE ACTIONS SHEET - Mount once at top level */}
-      <GlobalQuoteActionsSheet />
     </GestureHandlerRootView>
   );
 }

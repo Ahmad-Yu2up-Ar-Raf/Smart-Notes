@@ -113,7 +113,7 @@ function Button({ className, variant, size, onPress, ...props }: ButtonProps) {
           props.disabled && 'opacity-50',
           buttonVariants({ variant, size }),
           className,
-          'font-cinzel_semibold overflow-hidden'
+          ' overflow-hidden'
         )}
         role="button"
         onPress={handlePress}

@@ -17,8 +17,9 @@ import { THEME } from '@/lib/theme';
 import { Button } from '../../shadcn-ui/button';
 import { Icon } from '../../shadcn-ui/icon';
 import { Text } from '../../shadcn-ui/text';
-import { MoreHorizontalIcon } from 'lucide-react-native';
-import { useQuoteActionsSheet } from '@/components/provider/QuoteActionsSheetProvider';
+import { HeartIcon, MoreHorizontalIcon } from 'lucide-react-native';
+
+import { useLiked } from '@/components/provider/LikedProvider';
 
 type componentProps = ViewProps & {
   className?: string;
@@ -40,15 +41,24 @@ type componentProps = ViewProps & {
  */
 export function QuoteCard({ className, index, quote, ...props }: componentProps) {
   // ✅ Get global sheet controller
-  const { openSheet } = useQuoteActionsSheet();
 
+  const { toggleLike, hasItem } = useLiked();
   // ✅ Theme
   const { colorScheme } = useColorScheme();
   const currentTheme = colorScheme ?? 'light';
   const tintColor = THEME[currentTheme].mutedForeground;
+  const isLiked = hasItem(quote.id);
 
   const Author = batasiKata(quote.author, 2);
 
+  /**
+   * ⚡ HANDLE LIKE: Call toggleLike WITHOUT await
+   * This gives instant 0ms feedback!
+   * Storage sync happens in background (non-blocking)
+   */
+  const handleToggleLike = useCallback(() => {
+    toggleLike(quote); // ← NO await! Instant change!
+  }, [quote, toggleLike]);
   /**
    * ✅ NAVIGATE TO QUOTE DETAIL
    */
@@ -58,14 +68,6 @@ export function QuoteCard({ className, index, quote, ...props }: componentProps)
       params: { id: quote.id, name: quote.author },
     });
   }, [quote.id, quote.author]);
-
-  /**
-   * ✅ OPEN GLOBAL ACTIONS SHEET - SIMPLIFIED
-   */
-  const handleOpenActionsSheet = useCallback(() => {
-    console.log('📌 Button tapped! Opening sheet for quote:', quote.id);
-    openSheet(quote);
-  }, [quote, openSheet]);
 
   return (
     <Card
@@ -80,12 +82,14 @@ export function QuoteCard({ className, index, quote, ...props }: componentProps)
           <QuoteIcon width={20} height={20} fill={tintColor} stroke={tintColor} />
 
           {/* ✅ MORE ACTIONS BUTTON: Triggers global drawer */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onPress={handleOpenActionsSheet}
-            className="absolute right-0 top-0">
-            <Icon as={MoreHorizontalIcon} className="size-5 text-muted-foreground" />
+          <Button variant="ghost" size="icon" onPress={handleToggleLike} className="p-2.5">
+            <Icon
+              as={HeartIcon}
+              className={cn(
+                'size-full text-muted-foreground',
+                isLiked && 'fill-destructive text-destructive'
+              )}
+            />
           </Button>
         </CardHeader>
 

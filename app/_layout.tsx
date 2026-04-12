@@ -10,7 +10,7 @@ import { Poppins_400Regular } from '@expo-google-fonts/poppins/400Regular';
 import { Poppins_500Medium } from '@expo-google-fonts/poppins/500Medium';
 import { Poppins_600SemiBold } from '@expo-google-fonts/poppins/600SemiBold';
 import { Poppins_700Bold } from '@expo-google-fonts/poppins/700Bold';
-
+import { ArchitectsDaughter_400Regular } from '@expo-google-fonts/architects-daughter/400Regular';
 export { ErrorBoundary } from 'expo-router';
 import {
   SourceSerifPro_200ExtraLight,
@@ -45,7 +45,7 @@ function AppBootstrap() {
     Poppins_500Medium,
     Poppins_600SemiBold,
     Poppins_700Bold,
-
+    ArchitectsDaughter_400Regular,
     SourceSerifPro_200ExtraLight,
     SourceSerifPro_200ExtraLight_Italic,
     SourceSerifPro_300Light,

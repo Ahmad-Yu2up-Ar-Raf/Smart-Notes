@@ -79,6 +79,7 @@ module.exports = {
       arabic: ['Arabic'],
       teko_light: ['Teko_300Light'],
       teko_regular: ['Teko_400Regular'],
+      ArchitectursDaughter_400Regular: ['ArchitectsDaughter_400Regular', 'cursive'],
       teko_medium: ['Teko_500Medium'],
       source_serif_regular: ['SourceSerifPro_200ExtraLight', 'serif'],
       source_serif_medium: ['SourceSerifPro_300Light', 'serif'],

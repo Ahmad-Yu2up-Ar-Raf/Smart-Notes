@@ -14,17 +14,17 @@ const ArchiveIcon = ({ title, titleId, ...props }: SvgProps & SVGRProps) => {
 
   const primaryColor = THEME[currentTheme].primary;
   return (
-    <Svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} width={27} height={27} {...props}>
-      <Path
-        fill={props.fill}
-        fillRule="evenodd"
-        d="M11.5 21h1c3.771 0 5.657 0 6.828-1.172C20.5 18.657 20.5 16.771 20.5 13V6.998C20.355 7 20.15 7 20 7H4c-.15 0-.355 0-.5-.002V13c0 3.771 0 5.657 1.172 6.828C5.843 21 7.729 21 11.5 21Zm-2.424-9.883C9 11.301 9 11.534 9 12s0 .699.076.883a1 1 0 0 0 .541.54c.184.077.417.077.883.077h3c.466 0 .699 0 .883-.076a1 1 0 0 0 .54-.541C15 12.699 15 12.466 15 12s0-.699-.076-.883a1 1 0 0 0-.541-.54c-.184-.077-.417-.077-.883-.077h-3c-.466 0-.699 0-.883.076a1 1 0 0 0-.54.541Z"
-        clipRule="evenodd"
-      />
-      <Path
-        fill={props.fill}
-        d="M2 5c0-.943 0-1.414.293-1.707C2.586 3 3.057 3 4 3h16c.943 0 1.414 0 1.707.293C22 3.586 22 4.057 22 5c0 .943 0 1.414-.293 1.707C21.414 7 20.943 7 20 7H4c-.943 0-1.414 0-1.707-.293C2 6.414 2 5.943 2 5Z"
-      />
+    <Svg
+      width={32}
+      height={32}
+      stroke={props.stroke ?? primaryColor}
+      strokeWidth={0.648}
+      viewBox="-3.6 -3.6 43.2 43.2"
+      aria-labelledby={titleId}
+      {...props}>
+      {title ? <title id={titleId}>{title}</title> : null}
+      <Path d="M35.32 13.74a1.71 1.71 0 0 0-1.45-.74h-22.7a2.59 2.59 0 0 0-2.25 1.52 1 1 0 0 0 0 .14L6 25V7h6.49l2.61 3.59a1 1 0 0 0 .81.41H32a2 2 0 0 0-2-2H16.42l-2.31-3.18A2 2 0 0 0 12.49 5H6a2 2 0 0 0-2 2v22.69A1.37 1.37 0 0 0 5.41 31h24.93a1 1 0 0 0 1-.72l4.19-15.1a1.64 1.64 0 0 0-.21-1.44Z" />
+      <Path fill="none" d="M0 0h36v36H0z" />
     </Svg>
   );
 };

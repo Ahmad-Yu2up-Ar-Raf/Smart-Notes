@@ -39,19 +39,19 @@ export function Wrapper({
   onScroll,
   className,
   containerClassName,
-  edges = ['bottom'],
+  edges = ['bottom', 'right', 'left', 'top'], // default hanya bottom, karena header sudah handle top insets
   scrollViewStyle,
   contentContainerStyle,
 }: WrapperProps) {
   return (
-    <SafeAreaView edges={edges} className={cn('flex flex-1', containerClassName)}>
+    <SafeAreaView edges={edges} className={cn('flex flex-1 px-7', containerClassName)}>
       <Animated.ScrollView
         ref={scrollRef}
         onScroll={onScroll}
         scrollEventThrottle={16}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="interactive"
-        contentContainerClassName={cn('flex-col pt-0 bg-background gap-3 relative', className)}
+        contentContainerClassName={cn('flex-col pt-0  bg-background gap-3 relative', className)}
         contentContainerStyle={contentContainerStyle}
         showsVerticalScrollIndicator={false}
         // ✅ NEW: animated style untuk ScrollView container (bukan contentContainer)

@@ -57,19 +57,19 @@ export default function Provider({ children }: ComponentProps) {
         <ThemeProvider value={NAV_THEME[colorScheme ?? 'light']}>
           <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
           {/*
-          ✅ Provider order (from bottom to top):
-          - LikedProvider: global cart state
-          - QuoteActionsSheetProvider: global sheet state (NEW!)
-          - GestureHandlerRootView: gesture handling
-          - ToastProvider: toast notifications
+          ✅ Provider order (from outer to inner):
+          1. GestureHandlerRootView: gesture handling (MUST BE FIRST!)
+          2. LikedProvider: global cart state
+          3. QuoteActionsSheetProvider: global sheet state
+          4. ToastProvider: toast notifications
         */}
-          <LikedProvider>
-            <QuoteActionsSheetProvider>
-              <GestureHandlerRootView>
+          <GestureHandlerRootView style={{ flex: 1 }}>
+            <LikedProvider>
+              <QuoteActionsSheetProvider>
                 <ToastProvider>{children}</ToastProvider>
-              </GestureHandlerRootView>
-            </QuoteActionsSheetProvider>
-          </LikedProvider>
+              </QuoteActionsSheetProvider>
+            </LikedProvider>
+          </GestureHandlerRootView>
         </ThemeProvider>
       </QueryClientProvider>
     </ClerkProvider>

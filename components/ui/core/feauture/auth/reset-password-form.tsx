@@ -27,7 +27,7 @@ export function ResetPasswordForm() {
       title="Reset Password"
       loading={isSubmitting}
       className="mb-4"
-      description=" Enter your new password and the verification code we sent to your email">
+      description=" Enter your new password   ">
       <GroupedInput>
         <GroupedInputItem
           disabled={isSubmitting}

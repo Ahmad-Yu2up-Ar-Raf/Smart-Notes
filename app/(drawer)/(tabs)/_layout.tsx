@@ -4,13 +4,14 @@ import { THEME } from '@/lib/theme';
 import { useColorScheme } from 'nativewind';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HapticTab } from '@/components/ui/core/haptic-tab';
-import HeartIcon from '@/components/ui/fragments/svg/icons/heart';
 
+import Ionicons from '@expo/vector-icons/Ionicons';
 import HomeIcon from '@/components/ui/fragments/svg/icons/home';
 
+import { UserAvatar } from '@/components/ui/core/feauture/auth/user-menu';
+import { Icon } from '@/components/ui/fragments/shadcn-ui/icon';
+import { FolderClosed, FolderIcon, FolderOpen, HeartIcon } from 'lucide-react-native';
 import ArchiveIcon from '@/components/ui/fragments/svg/icons/archive-icon';
-import QuoteIcon from '@/components/ui/fragments/svg/icons/quotes-icon';
- 
 
 export default function TabsLayout() {
   const { colorScheme } = useColorScheme();
@@ -73,12 +74,25 @@ export default function TabsLayout() {
             title: 'Archive',
             tabBarShowLabel: false,
             tabBarButton: HapticTab,
-            tabBarIcon: ({ color, focused }) => (
-              <ArchiveIcon
-                fill={focused ? tintColor : 'none'}
-                stroke={focused ? tintColor : inactiveTintColor}
-              />
-            ),
+            tabBarIcon: ({ color, focused }) => {
+              return (
+                <>
+                  {focused ? (
+                    <ArchiveIcon
+                      fill={focused ? tintColor : 'none'}
+                      stroke={focused ? 'none' : inactiveTintColor}
+                    />
+                  ) : (
+                    <Icon
+                      as={focused ? FolderOpen : FolderClosed}
+                      className="size-6"
+                      fill={focused ? tintColor : 'none'}
+                      stroke={focused ? tintColor : inactiveTintColor}
+                    />
+                  )}
+                </>
+              );
+            },
           }}
         />
         <Tabs.Screen
@@ -89,10 +103,7 @@ export default function TabsLayout() {
             tabBarShowLabel: false,
             tabBarButton: HapticTab,
             tabBarIcon: ({ color, focused }) => (
-              <QuoteIcon
-                fill={focused ? tintColor : 'none'}
-                stroke={focused ? tintColor : inactiveTintColor}
-              />
+              <Ionicons name={focused ? 'search' : 'search-outline'} size={26} color={color} />
             ),
           }}
         />
@@ -103,11 +114,22 @@ export default function TabsLayout() {
             tabBarShowLabel: false,
             tabBarButton: HapticTab,
             tabBarIcon: ({ color, focused }) => (
-              <HeartIcon
+              <Icon
+                as={HeartIcon}
+                className="size-6"
                 fill={focused ? tintColor : 'none'}
                 stroke={focused ? tintColor : inactiveTintColor}
               />
             ),
+          }}
+        />
+        <Tabs.Screen
+          name="profile"
+          options={{
+            title: 'Profile',
+            tabBarShowLabel: false,
+            tabBarButton: HapticTab,
+            tabBarIcon: ({ color, focused }) => <UserAvatar className="size-7" />,
           }}
         />
 

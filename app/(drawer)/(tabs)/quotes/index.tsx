@@ -1,3 +1,4 @@
+import QuotesBlock from '@/components/ui/core/block/quotes-block';
 import { SCREEN_OPTIONS } from '@/components/ui/core/layout/nav';
 
 import { Link, Stack } from 'expo-router';
@@ -8,6 +9,7 @@ export default function Screen() {
   return (
     <>
       <Stack.Screen options={SCREEN_OPTIONS({ title: 'Quotes' })} />
+      <QuotesBlock/>
     </>
   );
 }
